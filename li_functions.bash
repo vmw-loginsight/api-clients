@@ -7,7 +7,7 @@ liauth() {
     else
         LISESSIONID=$(curl -ski -X POST -H "content-type: application/json" \
 -d '{ "provider": "'$2'", "username": "'$3'", "password": "'$4'" }' \
-https://$1/api/v1/sessions)
+https://$1:9543/api/v1/sessions)
         if [ ! -z "$(echo $LISESSIONID | grep -i sessionid)" ]; then
             LISESSIONID2=$(echo $LISESSIONID | awk '{split($0,a,"\""); print a[8];}')
         fi
@@ -55,12 +55,16 @@ deployment/new
  {"user": {"userName": "admin", "password": "Password123!", "email": "admin@example.com"}}
 events/ingest/<agentId>
  {"events": [{"text": "Hello world.", "timestamp": 123456789, "fields": [{"name": "field", "content": "value", "startPosition": 1, "length": 12, },...] },...] }
+ forwarding (create)
+ {"id": "test1", "host": "192.168.1.1", "port": 514, "protocol": "<syslog|cfapi>", "transportProtocol": "<tcp|udp>", "sslEnabled": <true|false>, "workerCount": <1-4>, "diskCacheSize": <200-2000>, "tags": {key: value, ...}, "filter": "(((not (text=~\"*1234\")) and ..." }
 rollback
 upgrades
  {"pakUrl": "http://example.com/sb/api/7580600/deliverable/?file=publish/VMware-vRealize-Log-Insight-3.7.0-7580600.UNSTABLE.TP.pak"}
 
 PUT Methods
 ===========
+ forwarding (update)
+ {"id": "test1", "host": "192.168.1.1", "port": 514, "protocol": "<syslog|cfapi>", "transportProtocol": "<tcp|udp>", "sslEnabled": <true|false>, "workerCount": <1-4>, "diskCacheSize": <200-2000>, "tags": {key: value, ...}, "filter": "(((not (text=~\"*1234\")) and ..." }
 upgrades/<version>/eula
  {"accepted": "true"}
 '
@@ -82,8 +86,8 @@ liapi() {
         "$3" != version ]]; then echo "ERROR: Must authenticate first with liauth"
     # API -- must swallow errors given DATA variable requiring double quotations
     else
-        echo curl -ski -X $2 -H 'Content-Type: application/json' -H 'Authorization: Bearer $(echo -n $LISESSIONID)' "$DATA" https://$1/api/v1/$3
-        RESPONSE=$(curl -ski -X $2 -H 'Content-Type: application/json' -H 'Authorization: Bearer $(echo -n $LISESSIONID)' "$DATA" https://$1/api/v1/$3)
+        echo curl -ski -X $2 -H 'Content-Type: application/json' -H 'Authorization: Bearer $(echo -n $LISESSIONID)' "$DATA" https://$1:9543/api/v1/$3
+        RESPONSE=$(curl -ski -X $2 -H 'Content-Type: application/json' -H 'Authorization: Bearer $(echo -n $LISESSIONID)' "$DATA" https://$1:9543/api/v1/$3)
     fi
 
     if [ "$4" == "--pretty" -o "$5" == "--pretty" ]; then
